@@ -1,0 +1,26 @@
+<?php
+echo($_FILES['file']['size']);
+if(($_FILES['file']['type']=="image/gif"||$_FILES['file']['type']=="image/jpeg"||$_FILES['file']['type']=="image/pjpeg")&&$_FILES['file']['size']<200000)
+{
+	if($_FILES['file']['error']>0)
+	{
+		echo('文件上传失败！');
+	}
+	else
+	{
+		if(file_exists('upload/'.$_FILES['file']['name']))
+		{
+			echo('该文件已存在！');
+		}
+		else
+		{
+			move_uploaded_file($_FILES['file']['tmp_name'],'upload/'.$_FILES['file']['name']);
+			echo('文件上传成功！');
+		}
+	}
+}
+else
+{
+	echo('上传文件失败，请上传jpg gif类型图片文件且文件小于200K');
+}
+?>

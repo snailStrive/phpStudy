@@ -1,0 +1,6 @@
+/* CSS Document */
+#pageTab td{text-align:center; padding:0px; background:url(../images/page.png) repeat-x 0 0; border-bottom:0!important; font-family:Arial, Helvetica, sans-serif; color:#fff;}
+#pageTab td a{color:#FFFFFF; text-decoration:none; padding:1px 5px; border:1px solid #f30;}
+#pageTab td.page_now{border:1px solid #333!important; background-image:none; background:#666; padding:1px 5px;}
+#pageTab td.pageSpc{background-image:none; width:4px; padding:0; background-image:none; border:0}
+
