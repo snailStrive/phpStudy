@@ -57,13 +57,12 @@ html=3|news|20|1
                             <li><a href="article.php?cls=18&css=tle|cls|wrt|src|bdy|url|hit|dte|keyword|intro&title=行业新闻" class="de" target="main">行业新闻</a></li>   
                         </ul>
                     </li>
-                    <li><a href="article.asp?cls=4&css=img|bdy|sort" class="nav-top-item no-submenu de" target="main">成功案例</a></li>
-                    <li><a href="photo.asp?cls=3&css=bdy|sort" class="nav-top-item no-submenu de" target="main">员工风采</a></li>
-                    <li><a class="nav-top-item">网站信息管理</a>
+                    <li><a href="article.php?cls=5&css=tle|cls|img|bdy|hit|sort|intro&title=成功案例" class="nav-top-item no-submenu de" target="main">成功案例</a></li>
+                    <li><a href="photo.php?cls=29&css=tle|cls|img|bdy|hit|sort|intro&title=员工风采" class="nav-top-item no-submenu de" target="main">员工风采</a></li>
+                    <li><a class="nav-top-item">联系方式管理</a>
                         <ul>
-                            <li><a href="contactUs.asp?html=1" class="de" target="main">联系方式</a></li>
-                            <li><a href="message.asp" class="de" target="main">意见留言</a></li>
-                            <li><a href="qq.asp?cls=5" class="de" target="main">浮动QQ客服</a></li>
+                            <li><a href="contactUs.php" class="de" target="main">联系方式</a></li>
+                            <li><a href="services.php" class="de" target="main">浮动QQ客服</a></li>
                         </ul>
                     </li>
                 </ul>

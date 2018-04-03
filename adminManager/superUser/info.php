@@ -124,13 +124,13 @@
         </tr>
         <?php }?>
         <tr>
-            <td width="15%" align="right">详细内容：</td>
-            <td width="85%"><textarea name="bdy" id="bdy" style="width:800px;height:400px;visibility:hidden;"><?php echo($bdy);?></textarea></td>
+            <td width="15%" align="right" valign="top" style="padding-top:15px;">详细内容：</td>
+            <td width="85%" style="padding:13px 5px;"><textarea name="bdy" id="bdy" style="width:800px;height:400px;visibility:hidden;"><?php echo($bdy);?></textarea></td>
         </tr>
         <?php if(strpos($_GET['css'],'intro')!==false){?>
         <tr>
-            <td width="15%" align="right">信息简介：</td>
-            <td width="85%"><textarea name="intro" id="intro" style="width:800px;height:64px;"><?php echo($intro);?></textarea></td>
+            <td width="15%" align="right" valign="top" style="padding-top:15px;">信息简介：</td>
+            <td width="85%" style="padding:13px 5px;"><textarea name="intro" id="intro" style="width:794px;height:66px;"><?php echo($intro);?></textarea></td>
         </tr>
 		<?php }?>
     </table>

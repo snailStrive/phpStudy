@@ -7,7 +7,7 @@
 	if(isset($_GET['id']))
 	{
 		$id=$_GET['id'];
-		$rql=$conn->prepare("select * from article where id=?");
+		$rql=$conn->prepare("select * from photo where id=?");
 		$rql->bind_param("i",$id);
 		$rql->execute();
 		$res=$rql->get_result();
@@ -16,14 +16,30 @@
 			$row=$res->fetch_assoc();
 			$tle=$row['tle'];
 			$dte=$row['dte'];
-			$wrt=$row['wrt'];
-			$src=$row['src'];
+			$imgTop=$row['imgTop'];
+			$imgTxt=$row['imgTxt'];
 			$img=$row['img'];
 			$bdy=$row['bdy'];
 			$intro=$row['intro'];
-			$url=$row['url'];
 			$hit=$row['hit'];
-			$keyword=$row['keyword'];
+			
+			if(!empty($img))
+			{
+				$imgs=explode("|",$img);
+				$imgTxts=explode("|",$imgTxt);
+				$txt="<div class='mulImgBtn'><input type='button' id='J_selectImage' value='批量上传' class='btn-del' /></div><div id='J_imageView'>";
+				for($n=0; $n<count($imgs); $n++)
+				{
+					if($n==$imgTop)
+						$txt.="<div class='mulImg'><table cellpadding='0' cellspacing='0' border='0'><tr><td valign='bottom' width='180' height='100'><img src='".$imgs[$n]."' /></td></tr></table><span><input type='text' value='".$imgTxts[$n]."' />&nbsp;<a href='javascript:;' class='mulImgTop mulImgTopOn'>置顶</a>&nbsp;<a href='javascript:;' class='mulImgDel' title='删除'>&nbsp;</a></span></div>";
+					else
+						$txt.="<div class='mulImg'><table cellpadding='0' cellspacing='0' border='0'><tr><td valign='bottom' width='180' height='100'><img src='".$imgs[$n]."' /></td></tr></table><span><input type='text' value='".$imgTxts[$n]."' />&nbsp;<a href='javascript:;' class='mulImgTop'>置顶</a>&nbsp;<a href='javascript:;' class='mulImgDel' title='删除'>&nbsp;</a></span></div>";
+					
+				}
+				$txt.="</div>";
+				
+			}
+			
 		}
 		else
 		{
@@ -34,13 +50,11 @@
 	{
 		$tle='';
 		$dte='';
-		$wrt='';
-		$src='';
+		$imgTop='';
+		$imgTxt='';
 		$img='';
 		$bdy='';
 		$intro='';
-		$url='';
-		$keyword='';
 		$hit=0;
 		$id=0;
 	}
@@ -72,44 +86,51 @@
 		});
 	</script>
     <script>
-		function uploadreset(img)
-		{
-			$.get("uploadReset.php",{"img":img},function(data){
-				if(data==1)
-				{
-					$("#J_selectImage").css("display","");
-					$("#upload-img").css("display","none");
-					$("#img").val('');
-				}
-				else
-				{
-					alert("原始图片文件删除失败！");
-				}
-			});
-		}
 		$(function(){
 			$("#submit").click(function(){
+				var mulImg="";
+				var mulTxt="";
+				var mulTop=0;
+				for(var n=0;n<$(".mulImg").length;n++)
+				{
+					mulImg=mulImg+$(".mulImg").eq(n).find("img").attr("src")+"|";
+					mulTxt=mulTxt+$(".mulImg").eq(n).find("input").attr("value")+"|";
+					if($(".mulImg").eq(n).children("span").children("a.mulImgTop").attr("class")=="mulImgTop mulImgTopOn")
+					{
+						mulTop=n;
+					}
+				}
+				if(mulImg!="")mulImg=mulImg.substr(0,mulImg.length-1);
+				if(mulTxt!="")mulTxt=mulTxt.substr(0,mulTxt.length-1);
+				
 				var tle=$("#tle").val()?$("#tle").val():"";
 				var cls=$("#cls").val()?$("#cls").val():"";
-				var src=$("#src").val()?$("#src").val():"";
-				var wrt=$("#wrt").val()?$("#wrt").val():"";
-				var img=$("#img").val()?$("#img").val():"";
+				var imgTop=mulTop;
+				var imgTxt=mulTxt;
+				var img=mulImg;
 				var bdy=$("#bdy").val()?$("#bdy").val():"";
-				var url=$("#url").val()?$("#url").val():"";
 				var hit=$("#hit").val()?$("#hit").val():0;
 				var dte=$("#dte").val()?$("#dte").val():null;
-				var keyword=$("#keyword").val()?$("#keyword").val():"";
 				var intro=$("#intro").val()?$("#intro").val():"";
-				$.post("articleEditSubmit.php",{"id":<?php echo($id)?>,"tle":tle,"cls":cls,"src":src,"wrt":wrt,"img":img,"bdy":bdy,"url":url,"hit":hit,"dte":dte,"keyword":keyword,"intro":intro,"sort":<?php echo($sort)?>},function(data){
+				$.post("photoEditSubmit.php",{"id":<?php echo($id)?>,"tle":tle,"cls":cls,"imgTop":imgTop,"imgTxt":imgTxt,"img":img,"bdy":bdy,"hit":hit,"dte":dte,"intro":intro,"sort":<?php echo($sort)?>},function(data){
 					if(data==1)
 					{
 						alert("信息提交成功！");
-						location.href="article.php?<?php echo($para);?>";
+						location.href="photo.php?<?php echo($para);?>";
 					}
 					else
-						alert("信息提交失败");
+						alert("信息提交失败");//
 				});
 			});
+			$(".mulImgTop").live("click",function(){
+				$(".mulImgTop").attr("class","mulImgTop");
+				$(this).attr("class","mulImgTop mulImgTopOn");
+			});
+			$(".mulImgDel").live("click",function(){
+				var imgUrl=$(this).parent().parent().children("table").find("img").attr("src");
+				var me=this;
+				var delImgObj=$.get("uploadReset.php",{"img":imgUrl},function(){$(me).parent().parent().remove()});
+			});	
 		});
 	</script>
 </head>
@@ -119,7 +140,7 @@
     <div class="info">后台管理系统 >> <?php echo($title)?>管理 >> <?php echo($title)?>信息编辑</div>
     <table width="100%" border="0" align="center" cellpadding="5" cellspacing="0">
         <tr>
-            <td colspan="2" height="30" class="tab-tle"><?php echo($_GET['title']);?>信息编辑<input type="button" value="返回" class="btn-back" onClick="location.href='article.php?<?php echo($para);?>';" /></td>
+            <td colspan="2" height="30" class="tab-tle"><?php echo($_GET['title']);?>信息编辑<input type="button" value="返回" class="btn-back" onClick="location.href='photo.php?<?php echo($para);?>';" /></td>
         </tr>
         <?php if(strpos($_GET['css'],'tle')!==false){?>
         <tr bgcolor="#ffffff">
@@ -179,16 +200,13 @@
 			});
 			prettyPrint();
 			K('#J_selectImage').click(function() {
-				editor.loadPlugin('image', function() {
-					editor.plugin.imageDialog({
-						showRemote : false,
-						clickFn : function(url, title, width, height, border, align) {
-							document.getElementById("upload-img").style.display="";
-							document.getElementById("J_selectImage").style.display="none";
-							document.getElementById("upload-reset").href="javascript:uploadreset('"+url+"');";
-							document.getElementById("upload-imgs").style.background="url("+url+") no-repeat center center / cover";
-							document.getElementById("img").style.display="";
-							document.getElementById("img").value=url;
+				editor.loadPlugin('multiimage', function() {
+					editor.plugin.multiImageDialog({
+						clickFn : function(urlList) {
+							var div = K('#J_imageView');
+							K.each(urlList, function(i, data) {
+								div.append("<div class='mulImg'><table cellpadding='0' cellspacing='0' border='0'><tr><td valign='bottom' width='180' height='100'><img src='"+data.url+"' /></td></tr></table><span><input type='text' />&nbsp;<a href='javascript:;' class='mulImgTop'>置顶</a>&nbsp;<a href='javascript:;' class='mulImgDel' title='删除'>&nbsp;</a></span></div>");
+							});
 							editor.hideDialog();
 						}
 					});
@@ -196,23 +214,14 @@
 			});
 		});
 		</script>
-        <tr>
-            <td height="60" align="right" style="line-height:16px"><strong>缩略图：</strong><div style="font-size:12px; color:#666666; padding:0px">图片小于2M</div></td>
+        <tr bgcolor="#ffffff">
+            <td height="60" align="right" style="line-height:16px"><strong>图片：</strong><div style="font-size:12px; color:#666666; padding:0px">单张图片小于1M</div></td>
             <td>
             	<input type="hidden" name="img" id="img" value="<?php echo($img);?>" />
             	<?php if(empty($img)){?>
-            	<a href="javascript:;" name="J_selectImage" id="J_selectImage" style="padding:6px 15px; background-color:#aa0000; color:#fff; border-radius:3px;">上传图片</a>
-                <div id="upload-img" style="display:none;">
-                    <span id="upload-imgs" style="float:left; width:100px; height:80px;"></span>
-                    <div style="float:left; height:80px; line-height:80px; padding-left:10px; color:#666;">图片上传成功，如需更改请点击 <a href="" id="upload-reset" style="padding:6px 15px; background-color:#aa0000; color:#fff; border-radius:3px;">重新上传</a></div>
-                </div>
-            	<?php }else{?>
-                <a href="javascript:;" name="J_selectImage" id="J_selectImage" style="display:none; padding:6px 10px; background-color:#aa0000; color:#fff; border-radius:3px;">上传图片</a>
-                <div id="upload-img">
-                    <span id="upload-imgs" style="float:left; width:100px; height:80px; background:url(<?php echo($img);?>) no-repeat center center / cover;"></span>
-                    <div style="float:left; height:80px; line-height:80px; padding-left:10px; color:#666;">图片上传成功，如需更改请点击 <a href="javascript:uploadreset('<?php echo($img);?>');" id="upload-reset" style="padding:6px 15px; background-color:#aa0000; color:#fff; border-radius:3px;">重新上传</a></div>
-                </div>
-                <?php }?>
+            	<div class="mulImgBtn"><input type="button" id="J_selectImage" value="批量上传" class="btn-del" /></div>
+                <div id="J_imageView"></div>
+            	<?php }else{ echo($txt); }?>
             </td>
         </tr>
         <?php }if(strpos($_GET['css'],'bdy')!==false){?>
@@ -251,7 +260,7 @@
         </tr>
         <?php }?>
     </table>
-    <div align="center" style="padding-top:15px; text-align:center; padding-bottom:15px"><input type="button" id="submit" class="btn" value=" 提 交 " />　　　　　　　　　　　　　　　　<input type="button" class="btn" value=" 返 回 " onClick="location.href='article.php?<?php echo($para);?>';" /></div>
+    <div align="center" style="padding-top:15px; text-align:center; padding-bottom:15px"><input type="button" id="submit" class="btn" value=" 提 交 " />　　　　　　　　　　　　　　　　<input type="button" class="btn" value=" 返 回 " onClick="location.href='photo.php?<?php echo($para);?>';" /></div>
 </div>
 
 </body>

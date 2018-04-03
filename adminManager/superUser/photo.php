@@ -36,7 +36,7 @@
 				var id=$(this).attr("data-id");
 				if(confirm("是否确认删除该信息！"))
 				{
-					$.post("Delete.php",{"tab":"article","id":id},function(data){
+					$.post("Delete.php",{"tab":"photo","id":id},function(data){
 						if(data==1)
 							location.href=location.href;
 						else
@@ -48,16 +48,8 @@
 				var hideOn=$(this).attr("class").indexOf("1")>0?0:1;
 				var id=$(this).attr("data-id");
 				var me=this;
-				$.post("articleHidden.php",{"id":id,"hideOn":hideOn},function(data){
+				$.post("photoHidden.php",{"id":id,"hideOn":hideOn},function(data){
 					$(me).attr("class","iconfont articleHidden classHidden"+hideOn);
-				});
-			});
-			$(".articleTop").click(function(){
-				var hideOn=$(this).attr("class").indexOf("1")>0?0:1;
-				var id=$(this).attr("data-id");
-				var me=this;
-				$.post("articleTop.php",{"id":id,"hideOn":hideOn},function(data){
-					$(me).attr("class","iconfont articleTop classHidden"+hideOn);
 				});
 			});
 			$(".tabTdSort input[type=button]").click(function(){
@@ -69,11 +61,11 @@
 				}
 				var id=$(this).parent().attr("data-id");
 				var oldSort=$(this).parent().attr("data-sort");
-				$.post("articleSort.php",{"id":id,"pos":movePos,"cls":<?php echo($_GET['cls']);?>,"oldSort":oldSort},function(data){
+				$.post("photoSort.php",{"id":id,"pos":movePos,"cls":<?php echo($_GET['cls']);?>,"oldSort":oldSort},function(data){
 					if(data==1)
 						location.href=location.href;
 					else
-						alert("排序位置移动失败！");
+						alert("信息排序失败！");
 				});
 			});
 		});
@@ -95,13 +87,13 @@
     <table cellpadding="0" cellspacing="0" border="0" width="100%" id="info">
     	<tr>
         	<td height="40" width="50%">后台管理系统 >> <?php echo($_GET['title'])?>管理 >> 信息列表 </td>
-            <td width="50%" align="right"><input type="button" value="信息检索" id="showSearch" name="showSearch" />&emsp;<input type="button" value="添加新信息" id="addClass" onclick="location.href='articleEdit.php?<?php echo($para.$paraSearch);?>';" /></td>
+            <td width="50%" align="right"><input type="button" value="信息检索" id="showSearch" name="showSearch" />&emsp;<input type="button" value="添加新信息" id="addClass" onclick="location.href='photoEdit.php?<?php echo($para.$paraSearch);?>';" /></td>
         </tr>
     </table>
     <div id="search">
         <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:transparent;">
             <tr>
-                <td height="50" style="font-size:14px; color:#333333"><b>文章检索：</b><select name="sType" id="sType" style="padding:0;"><option value="">请选择</option><option value="1">ID</option><option value="2">标题</option></select> <input name="sValue" type="text" id="sValue" class="input" size="12" maxlength="12" /> <input type="button" id="toSearch" value="提交" class="button" data-url="article.php?<?php echo($para);?>" /> <input type="button" value="显示全部" onclick="location.href='article.php?<?php echo($para);?>'" class="button" /> <input type="button" class="button" value="退出检索" id="exitSearch" name="exitSearch" /></td>
+                <td height="50" style="font-size:14px; color:#333333"><b>文章检索：</b><select name="sType" id="sType" style="padding:0;"><option value="">请选择</option><option value="1">ID</option><option value="2">标题</option></select> <input name="sValue" type="text" id="sValue" class="input" size="12" maxlength="12" /> <input type="button" id="toSearch" value="提交" class="button" data-url="photo.php?<?php echo($para);?>" /> <input type="button" value="显示全部" onclick="location.href='photo.php?<?php echo($para);?>'" class="button" /> <input type="button" class="button" value="退出检索" id="exitSearch" name="exitSearch" /></form></td>
             </tr>
         </table>
     </div>
@@ -109,21 +101,21 @@
         <tr bgcolor="#ffffff">
             <td width="8%" height="30" align="center">ID</td>
             <td width="40%" class='tableTitle'>标题</td>
+            <td width="10%" align="center">图片</td>
             <td width="12%" align="center">栏目</td>
-            <td width="10%" align="center">日期</td>
             <td width="8%" align="center">显示</td>
-            <td width="12%" align="center"><?php if($sort){?>排序<?php }else{?>置顶<?php }?></td>
+            <td width="12%" align="center"><?php if($sort){?>排序<?php }else{?>日期<?php }?></td>
             <td width="10%" align="center">操作</td>
         </tr>
         <?php
 		$conn->query("set names utf8");
 		if($sort)
-			$sortSql=" order by article.sort asc";
+			$sortSql=" order by photo.sort asc";
 		else
-			$sortSql=" order by article.recommend desc,article.id desc";
+			$sortSql=" order by photo.id desc";
 		if($sType=='')
 		{
-			$sql='select article.id,article.tle,article.dte,article.display,article.recommend,article.img,article.sort,class.className from article inner join class on article.cls=class.id where article.cls=?';
+			$sql='select photo.id,photo.tle,photo.dte,photo.display,photo.img,photo.sort,photo.imgTop,class.className from photo inner join class on photo.cls=class.id where photo.cls=?';
 			$rql=$conn->prepare($sql.$sortSql);
 			$rql->bind_param("i",$_GET['cls']);
 			
@@ -132,13 +124,13 @@
 		{
 			if($sType==1)
 			{
-				$sql='select article.id,article.tle,article.dte,article.display,article.recommend,article.img,article.sort,class.className from article inner join class on article.cls=class.id where article.cls=? and article.id=?';
+				$sql='select photo.id,photo.tle,photo.dte,photo.display,photo.img,photo.sort,photo.imgTop,class.className from photo inner join class on photo.cls=class.id where photo.cls=? and photo.id=?';
 				$rql=$conn->prepare($sql.$sortSql);
 				$rql->bind_param("ii",$_GET['cls'],$sValue);
 			}
 			else
 			{
-				$sql='select article.id,article.tle,article.dte,article.display,article.recommend,article.img,article.sort,class.className from article inner join class on article.cls=class.id where article.cls=? and article.tle like ?';
+				$sql='select photo.id,photo.tle,photo.dte,photo.display,photo.img,photo.sort,photo.imgTop,class.className from photo inner join class on photo.cls=class.id where photo.cls=? and photo.tle like ?';
 				$rql=$conn->prepare($sql.$sortSql);
 				$sValue='%'.$sValue.'%';
 				$rql->bind_param("is",$_GET['cls'],$sValue);
@@ -148,16 +140,22 @@
 		$rql->execute();
 		$res=$rql->get_result();
 		while($row=$res->fetch_assoc())
-		{?>
+		{
+			if(empty($row['img']))
+				$img='';
+			else
+			{
+				$imgArr=explode('|',$row['img']);
+				$img=$imgArr[$row['imgTop']];
+			}?>
         <tr bgcolor="#FFFFFF">
             <td align="center"><?php echo($row["id"]);?></td>
-			<?php $tle=!empty($row["img"])?$row["tle"]."<span class='red'>&nbsp;[图]</span>":$row["tle"];?>
-            <td><?php echo($tle)?></td>
+            <td><?php echo($row["tle"])?></td>
+            <td align="center" class="gry" style="padding:10px 0;"><img src="<?php echo($img);?>" style="max-height:60px;" /></td>
             <td align="center"><?php echo($row["className"]);?></td>
-            <td align="center" class="gry"><?php echo(substr($row["dte"],0,10));?></td>
             <td align="center"><i class="iconfont articleHidden classHidden<?php echo($row['display']);?>" data-id="<?php echo($row['id']);?>">&#xe656;</i></td>
             <td align="center" class="tabTdSort" data-id="<?php echo($row['id']);?>" data-sort='<?php echo($row['sort']);?>'><?php if($sort){?>移至<input type="text" />位 <input type="button" value="跳转" /><?php }else{?><i class="iconfont articleTop classHidden<?php echo($row['recommend']);?>" data-id="<?php echo($row['id']);?>">&#xe656;</i><?php }?></td>
-            <td align="center"><a href="articleEdit.php?id=<?php echo($row["id"]."&".$para.$paraSearch);?>" title="修改" class="operate-edit">&nbsp;</a>　<a href="javascript:;" data-id="<?php echo($row['id']);?>" title="删除" class="operate-del">&nbsp;</a></td>
+            <td align="center"><a href="photoEdit.php?id=<?php echo($row["id"]."&".$para.$paraSearch);?>" title="修改" class="operate-edit">&nbsp;</a>　<a href="javascript:;" data-id="<?php echo($row['id']);?>" title="删除" class="operate-del">&nbsp;</a></td>
         </tr>
 		<?php }?>
     </table>
